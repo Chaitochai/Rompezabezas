@@ -10,20 +10,25 @@
             margin: 0;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             background-color: #f0f0f0;
         }
+        #timer {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
         #puzzle-container {
             width: 400px;
-            height: 400px;
+            height: 300px;
             position: relative;
             background-color: white;
         }
         .puzzle-piece {
             width: 100px;
             height: 100px;
-            background-size: 400px 400px;
+            background-size: 400px 300px;
             cursor: pointer;
             border: 1px solid #ccc;
             position: absolute;
@@ -32,18 +37,43 @@
     </style>
 </head>
 <body>
+    <div id="timer">Tiempo: 0s</div>
     <div id="puzzle-container"></div>
 
     <script>
-        const rows = 4;
+        const rows = 3;
         const cols = 4;
         const pieceWidth = 100;
         const pieceHeight = 100;
-        const imagePath = "puzzle_image.jpg"; // Asegúrate de que esta imagen esté en el mismo directorio
+        const imagePath = "puzzle_image.jpg";
+        const timeLimit = 2000;
 
         const puzzleContainer = document.getElementById("puzzle-container");
+        const timerDisplay = document.getElementById("timer");
         let pieces = [];
+        let lastPiece = null;
         let emptyPiece = { row: rows - 1, col: cols - 1 };
+        let timer = 0;
+        let intervalId;
+        let puzzleCompleted = false;
+        let timeExpired = false;
+
+        function startTimer() {
+            intervalId = setInterval(() => {
+                timer++;
+                timerDisplay.textContent = `Tiempo: ${timer}s`;
+
+                if (timer >= timeLimit && !puzzleCompleted) {
+                    clearInterval(intervalId);
+                    timeExpired = true;
+                    alert("Tiempo agotado. Ya no puedes continuar.");
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(intervalId);
+        }
 
         function createPuzzle() {
             for (let row = 0; row < rows; row++) {
@@ -54,6 +84,8 @@
                     piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
                     piece.dataset.row = row;
                     piece.dataset.col = col;
+                    piece.dataset.originalRow = row;
+                    piece.dataset.originalCol = col;
                     piece.style.left = `${col * pieceWidth}px`;
                     piece.style.top = `${row * pieceHeight}px`;
                     piece.addEventListener("click", () => movePiece(piece));
@@ -61,9 +93,10 @@
                     pieces.push(piece);
                 }
             }
-            const lastPiece = pieces.pop();
+            lastPiece = pieces.pop();
             lastPiece.remove();
             shufflePieces();
+            startTimer();
         }
 
         function shufflePieces() {
@@ -82,6 +115,8 @@
         }
 
         function movePiece(piece) {
+            if (puzzleCompleted || timeExpired) return;
+
             const row = parseInt(piece.dataset.row);
             const col = parseInt(piece.dataset.col);
 
@@ -93,7 +128,28 @@
                 piece.dataset.row = tempRow;
                 piece.dataset.col = tempCol;
                 updatePiecePosition(piece);
+
+                if (checkWin()) {
+                    completePuzzle();
+                }
             }
+        }
+
+        function checkWin() {
+            return pieces.every(piece => {
+                return (
+                    parseInt(piece.dataset.row) === parseInt(piece.dataset.originalRow) &&
+                    parseInt(piece.dataset.col) === parseInt(piece.dataset.originalCol)
+                );
+            });
+        }
+
+        function completePuzzle() {
+            stopTimer();
+            puzzleCompleted = true;
+            setTimeout(() => {
+                alert(`¡Has ganado en ${timer} segundos!`);
+            }, 100);
         }
 
         createPuzzle();
