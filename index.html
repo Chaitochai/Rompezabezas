@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Rompecabezas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        #puzzle-container {
+            width: 400px;
+            height: 400px;
+            position: relative;
+            background-color: white;
+        }
+        .puzzle-piece {
+            width: 100px;
+            height: 100px;
+            background-size: 400px 400px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            position: absolute;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="puzzle-container"></div>
+
+    <script>
+        const rows = 4;
+        const cols = 4;
+        const pieceWidth = 100;
+        const pieceHeight = 100;
+        const imagePath = "puzzle_image.jpg"; // Asegúrate de que esta imagen esté en el mismo directorio
+
+        const puzzleContainer = document.getElementById("puzzle-container");
+        let pieces = [];
+        let emptyPiece = { row: rows - 1, col: cols - 1 };
+
+        function createPuzzle() {
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
+                    const piece = document.createElement("div");
+                    piece.className = "puzzle-piece";
+                    piece.style.backgroundImage = `url('${imagePath}')`;
+                    piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
+                    piece.dataset.row = row;
+                    piece.dataset.col = col;
+                    piece.style.left = `${col * pieceWidth}px`;
+                    piece.style.top = `${row * pieceHeight}px`;
+                    piece.addEventListener("click", () => movePiece(piece));
+                    puzzleContainer.appendChild(piece);
+                    pieces.push(piece);
+                }
+            }
+            const lastPiece = pieces.pop();
+            lastPiece.remove();
+            shufflePieces();
+        }
+
+        function shufflePieces() {
+            for (let i = pieces.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pieces[i].dataset.row, pieces[j].dataset.row] = [pieces[j].dataset.row, pieces[i].dataset.row];
+                [pieces[i].dataset.col, pieces[j].dataset.col] = [pieces[j].dataset.col, pieces[i].dataset.col];
+                updatePiecePosition(pieces[i]);
+                updatePiecePosition(pieces[j]);
+            }
+        }
+
+        function updatePiecePosition(piece) {
+            piece.style.left = `${piece.dataset.col * pieceWidth}px`;
+            piece.style.top = `${piece.dataset.row * pieceHeight}px`;
+        }
+
+        function movePiece(piece) {
+            const row = parseInt(piece.dataset.row);
+            const col = parseInt(piece.dataset.col);
+
+            if ((Math.abs(row - emptyPiece.row) === 1 && col === emptyPiece.col) ||
+                (Math.abs(col - emptyPiece.col) === 1 && row === emptyPiece.row)) {
+                const tempRow = emptyPiece.row;
+                const tempCol = emptyPiece.col;
+                emptyPiece = { row, col };
+                piece.dataset.row = tempRow;
+                piece.dataset.col = tempCol;
+                updatePiecePosition(piece);
+            }
+        }
+
+        createPuzzle();
+    </script>
+</body>
+</html>
