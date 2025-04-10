@@ -16,6 +16,8 @@
 <meta name="twitter:description" content="Un puzzle kawaii." />
 <meta name="twitter:image" content="https://github.com/Chaitochai/Rompezabezas/blob/main/familias.png" />
 
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <title>Rompecabezas</title>
     <style>
         body {
@@ -27,66 +29,292 @@
             justify-content: center;
             align-items: center;
             background-color: #f0f0f0;
+            touch-action: none;
         }
         #timer {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            text-align: center;
+            font-family: 'Arial', sans-serif;
+            color: #666;
+            background-color: transparent;
+            padding: 5px 15px;
+            border-radius: 15px;
+            box-shadow: none;
+            letter-spacing: 1px;
+            font-weight: 300;
         }
         #puzzle-container {
-            width: 400px;
-            height: 300px;
+            width: 90vw;
+            max-width: 400px;
+            height: auto;
+            aspect-ratio: 4/3;
             position: relative;
             background-color: white;
+            margin: 0 auto;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
         .puzzle-piece {
-            width: 100px;
-            height: 100px;
+            width: 25%;
+            height: 33.33%;
             background-size: 400px 300px;
             cursor: pointer;
             border: 1px solid #ccc;
             position: absolute;
             transition: all 0.3s ease;
+            touch-action: none;
         }
         #share-button {
             margin-top: 20px;
             display: none;
+            padding: 10px 20px;
+            background-color: #25D366;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            max-width: 90%;
+            width: 400px;
+            margin: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .modal-text {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.5;
+        }
+
+        .modal-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            min-width: 160px;
+        }
+
+        .modal-button:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .modal-button.secondary {
+            background-color: #f44336;
+        }
+
+        .modal-button.secondary:hover {
+            background-color: #da190b;
+        }
+
+        .modal-button.whatsapp {
+            background-color: #25D366;
+        }
+
+        .modal-button.whatsapp:hover {
+            background-color: #128C7E;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .game-container {
+            display: none;
+        }
+
+        .game-container.show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .trophy-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 1s infinite;
+        }
+
+        .complete-image {
+            width: 100%;
+            max-width: 300px;
+            margin: 1rem auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .time-display {
+            font-size: 2rem;
+            color: #4CAF50;
+            font-weight: bold;
+            margin: 1rem 0;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .close-button:hover {
+            background-color: #e0e0e0;
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 1.5rem;
+            }
+            .modal-title {
+                font-size: 1.5rem;
+            }
+            .modal-text {
+                font-size: 1rem;
+            }
+            .modal-button {
+                padding: 10px 20px;
+                font-size: 1rem;
+                min-width: 140px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="timer">Tiempo: 0s</div>
-    <div id="puzzle-container"></div>
-    <a id="share-button" href="#" target="_blank">📤 Compartir por WhatsApp</a>
+    <div id="start-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Rompecabezas</h2>
+            <p class="modal-text">
+                Arma el rompecabezas moviendo las piezas a su posición correcta.<br>
+                ¡Buena suerte!
+            </p>
+            <div class="button-container">
+                <button class="modal-button" onclick="startGame()">¡Comenzar!</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-container" class="game-container">
+        <div id="timer">00:00</div>
+        <div id="puzzle-container"></div>
+        <button id="solve-button" onclick="solvePuzzle()" style="display: none; margin-top: 15px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 25px; font-size: 1.1rem; cursor: pointer;">Resolver Puzzle</button>
+    </div>
+
+    <div id="end-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-button" onclick="exitGame()">×</button>
+            <div class="trophy-icon">😷</div>
+            <img src="puzzle_image.jpg" alt="Puzzle completado" class="complete-image">
+            <h2 class="modal-title">¡Felicidades!</h2>
+            <p class="modal-text" id="end-message"></p>
+            <div class="button-container">
+                <a id="share-button" href="#" target="_blank" class="modal-button whatsapp" style="text-decoration: none; display: none;">📤 Compartir por WhatsApp</a>
+                <button class="modal-button" onclick="restartGame()">Jugar de nuevo</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const rows = 3;
         const cols = 4;
-        const pieceWidth = 100;
-        const pieceHeight = 100;
+        let pieceWidth = 0;
+        let pieceHeight = 0;
         const imagePath = "puzzle_image.jpg";
-        const timeLimit = 2000;
 
         const puzzleContainer = document.getElementById("puzzle-container");
-        const timerDisplay = document.getElementById("timer");
         const shareButton = document.getElementById("share-button");
+        const startModal = document.getElementById("start-modal");
+        const endModal = document.getElementById("end-modal");
+        const gameContainer = document.getElementById("game-container");
+        const endMessage = document.getElementById("end-message");
+        const timerDisplay = document.getElementById("timer");
 
         let pieces = [];
         let lastPiece = null;
         let emptyPiece = { row: rows - 1, col: cols - 1 };
+        let puzzleCompleted = false;
         let timer = 0;
         let intervalId;
-        let puzzleCompleted = false;
-        let timeExpired = false;
+        let solvedWithButton = false;
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
 
         function startTimer() {
             intervalId = setInterval(() => {
                 timer++;
-                timerDisplay.textContent = `Tiempo: ${timer}s`;
-
-                if (timer >= timeLimit && !puzzleCompleted) {
-                    clearInterval(intervalId);
-                    timeExpired = true;
-                    alert("Tiempo agotado. Ya no puedes continuar.");
+                timerDisplay.textContent = formatTime(timer);
+                
+                // Show solve button after 30 seconds
+                if (timer === 30) {
+                    document.getElementById('solve-button').style.display = 'block';
                 }
             }, 1000);
         }
@@ -95,28 +323,95 @@
             clearInterval(intervalId);
         }
 
+        function showModal(modal) {
+            modal.classList.add('show');
+        }
+
+        function hideModal(modal) {
+            modal.classList.remove('show');
+        }
+
+        function startGame() {
+            hideModal(startModal);
+            gameContainer.classList.add('show');
+            createPuzzle();
+            startTimer();
+        }
+
+        function restartGame() {
+            hideModal(endModal);
+            puzzleCompleted = false;
+            solvedWithButton = false;
+            timer = 0;
+            timerDisplay.textContent = formatTime(timer);
+            pieces.forEach(piece => piece.remove());
+            pieces = [];
+            document.getElementById('solve-button').style.display = 'none';
+            createPuzzle();
+            startTimer();
+        }
+
+        function exitGame() {
+            window.location.href = 'index.html';
+        }
+
+        function showEndModal(message) {
+            endMessage.textContent = message;
+            showModal(endModal);
+        }
+
+        function getPieceSize() {
+            const containerWidth = puzzleContainer.offsetWidth;
+            const containerHeight = puzzleContainer.offsetHeight;
+            return {
+                width: containerWidth / cols,
+                height: containerHeight / rows
+            };
+        }
+
         function createPuzzle() {
+            const pieceSize = getPieceSize();
+            pieceWidth = pieceSize.width;
+            pieceHeight = pieceSize.height;
+            
+            // Create all pieces except the last one (bottom right)
             for (let row = 0; row < rows; row++) {
                 for (let col = 0; col < cols; col++) {
+                    // Skip the bottom right piece
+                    if (row === rows - 1 && col === cols - 1) continue;
+                    
                     const piece = document.createElement("div");
                     piece.className = "puzzle-piece";
                     piece.style.backgroundImage = `url('${imagePath}')`;
+                    piece.style.backgroundSize = `${pieceWidth * cols}px ${pieceHeight * rows}px`;
                     piece.style.backgroundPosition = `-${col * pieceWidth}px -${row * pieceHeight}px`;
                     piece.dataset.row = row;
                     piece.dataset.col = col;
                     piece.dataset.originalRow = row;
                     piece.dataset.originalCol = col;
-                    piece.style.left = `${col * pieceWidth}px`;
-                    piece.style.top = `${row * pieceHeight}px`;
+                    piece.style.left = `${col * pieceSize.width}px`;
+                    piece.style.top = `${row * pieceSize.height}px`;
+                    
+                    // Add touch events for mobile
+                    piece.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                    });
+                    
+                    piece.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        movePiece(piece);
+                    });
+                    
                     piece.addEventListener("click", () => movePiece(piece));
+                    
                     puzzleContainer.appendChild(piece);
                     pieces.push(piece);
                 }
             }
-            lastPiece = pieces.pop();
-            lastPiece.remove();
+            
+            // Set empty piece position
+            emptyPiece = { row: rows - 1, col: cols - 1 };
             shufflePieces();
-            startTimer();
         }
 
         function shufflePieces() {
@@ -130,12 +425,13 @@
         }
 
         function updatePiecePosition(piece) {
-            piece.style.left = `${piece.dataset.col * pieceWidth}px`;
-            piece.style.top = `${piece.dataset.row * pieceHeight}px`;
+            const pieceSize = getPieceSize();
+            piece.style.left = `${piece.dataset.col * pieceSize.width}px`;
+            piece.style.top = `${piece.dataset.row * pieceSize.height}px`;
         }
 
         function movePiece(piece) {
-            if (puzzleCompleted || timeExpired) return;
+            if (puzzleCompleted) return;
 
             const row = parseInt(piece.dataset.row);
             const col = parseInt(piece.dataset.col);
@@ -165,16 +461,44 @@
         }
 
         function completePuzzle() {
-            stopTimer();
             puzzleCompleted = true;
+            stopTimer();
             setTimeout(() => {
-                alert(`¡Has ganado en ${timer} segundos!`);
-                shareButton.href = `https://wa.me/?text=¡He%20completado%20el%20rompecabezas%20en%20${timer}%20segundos!%20%F0%9F%8E%AF`;
+                const gameUrl = "https://chaitochai.github.io/Rompezabezas/";
+                let shareMessage;
+                let endMessageText;
+                
+                if (solvedWithButton) {
+                    endMessageText = `¡Has completado el rompecabezas en ${formatTime(timer)}!\n\n...pero has hecho trampa usando el botón de resolver \u{1F61C}`;
+                    shareMessage = `¡He completado el rompecabezas en ${formatTime(timer)}! \u{1F3AE}\n\n...bueno, en realidad he usado el botón de resolver \u{1F605}\n\n¿Te atreves a intentarlo sin hacer trampa? Juega aquí:\n${gameUrl}`;
+                } else {
+                    endMessageText = `¡Has completado el rompecabezas en ${formatTime(timer)}!`;
+                    shareMessage = `¡He completado el rompecabezas en ${formatTime(timer)}! \u{1F3AE}\n\n¿Te atreves a intentarlo? Juega aquí:\n${gameUrl}`;
+                }
+                
+                showEndModal(endMessageText);
+                shareButton.href = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
                 shareButton.style.display = "inline-block";
             }, 100);
         }
 
-        createPuzzle();
+        function solvePuzzle() {
+            solvedWithButton = true;
+            pieces.forEach(piece => {
+                piece.dataset.row = piece.dataset.originalRow;
+                piece.dataset.col = piece.dataset.originalCol;
+                updatePiecePosition(piece);
+            });
+            completePuzzle();
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            pieces.forEach(piece => updatePiecePosition(piece));
+        });
+
+        // Show start modal when the page loads
+        showModal(startModal);
     </script>
 </body>
 </html>
